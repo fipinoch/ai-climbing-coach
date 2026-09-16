@@ -13,6 +13,24 @@ How this project is built by several Claude Code sessions working under one lead
 **Builder and reviewer are always different sessions.** A session reviewing its own work has
 already accepted every assumption in it — that is the whole reason for the split.
 
+## Standing policy
+
+Decided by the repository owner. Sessions follow these without re-litigating them.
+
+| Question | Policy |
+|---|---|
+| **Who merges?** | **The human. Always.** No agent merges any PR, including chore and docs. The lead reports "PR #N: reviewed, CI green, N findings resolved — ready" and stops there. |
+| **How are findings delivered?** | The reviewer posts **severity-labelled inline comments directly on the PR**, plus a summary verdict, and formally requests changes or approves. The PR thread is the complete record; the lead does not filter or relay findings. |
+| **What does the lead do?** | **Orchestration only.** Writes assignments, spawns and tracks sessions, triages disputes, reports status. The lead does not write feature code — its context is reserved for tracking state across PRs, which is what degrades first in a long-running orchestration. |
+
+Consequences worth being explicit about:
+
+- A PR sits until the human merges it. Builders must not treat an approved PR as done-and-dusted
+  and start the next task on top of it; the next assignment branches from `dev` after the merge.
+- Because findings go straight to GitHub, a *wrong* finding is public and costs the author time.
+  Reviewers verify before claiming — see `docs/06-review-standards.md` § Reviewer conduct.
+- The lead never resolves a review thread it did not open.
+
 ## The loop
 
 ```
