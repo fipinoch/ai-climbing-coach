@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://climbai.coach/schemas/training-block/1.0.0",
+  "title": "TrainingBlock",
+  "description": "A mesocycle of climbing training. Emitted by the LLM; loads are relative, not absolute. Generated from packages/contracts/src/trainingBlock.ts (Zod) - edit the Zod source, not this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "block_name", "start_date", "weeks", "rationale", "sessions", "progression_notes"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "block_name": { "type": "string", "maxLength": 60 },
+    "start_date": { "type": "string", "format": "date" },
+    "weeks": { "type": "integer", "minimum": 1, "maximum": 8 },
+    "primary_goal": {
+      "type": "string",
+      "enum": ["finger_strength", "power", "power_endurance", "aerobic_capacity", "skill", "return_to_climbing", "peak_for_event"]
+    },
+    "rationale": { "type": "string", "minLength": 40, "maxLength": 700 },
+    "progression_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["protocol_id", "dimension", "step"],
+        "properties": {
+          "protocol_id": { "type": "string" },
+          "dimension": { "type": "string", "enum": ["intensity_pct", "sets", "edge_depth_mm", "inter_set_rest_s", "grade_offset"] },
+          "step": { "type": "number" },
+          "note": { "type": "string", "maxLength": 240 }
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 60,
+      "items": { "$ref": "#/$defs/session" }
+    }
+  },
+  "$defs": {
+    "stimulus": {
+      "type": "string",
+      "enum": ["MAX_STRENGTH_FINGER", "MAX_STRENGTH_GENERAL", "POWER", "ANAEROBIC_CAPACITY", "AEROBIC_CAPACITY", "SKILL", "ACCESSORY", "REST"]
+    },
+    "intensity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis"],
+      "properties": {
+        "basis": {
+          "type": "string",
+          "enum": [
+            "MAX_HANG_20MM_TOTAL_LOAD",
+            "MIN_EDGE_DEPTH_MM",
+            "PULLUP_1RM",
+            "BOULDER_LIMIT_GRADE",
+            "ROUTE_ONSIGHT_GRADE",
+            "CAMPUS_RUNG_SET",
+            "CORE_LEVEL",
+            "RPE_TARGET",
+            "BODYWEIGHT"
+          ]
+        },
+        "pct": {
+          "type": "number",
+          "minimum": 0.4,
+          "maximum": 1.05,
+          "description": "Fraction of the basis. The engine resolves this to kg. Hard-capped at 1.05; protocol-specific ranges are enforced by the validator."
+        },
+        "grade_offset": { "type": "integer", "minimum": -6, "maximum": 1 },
+        "edge_depth_mm": { "type": "integer", "minimum": 6, "maximum": 30 },
+        "rpe_target": { "type": "number", "minimum": 4, "maximum": 10 }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "protocol_id", "stimulus", "order", "sets", "intensity"],
+      "properties": {
+        "item_id": { "type": "string", "pattern": "^[a-z0-9_-]{4,40}$" },
+        "protocol_id": { "type": "string" },
+        "stimulus": { "$ref": "#/$defs/stimulus" },
+        "order": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "sets": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "reps": { "type": "integer", "minimum": 1, "maximum": 40 },
+        "work_s": { "type": "integer", "minimum": 3, "maximum": 2400 },
+        "rest_s": { "type": "integer", "minimum": 0, "maximum": 600 },
+        "inter_set_rest_s": { "type": "integer", "minimum": 30, "maximum": 900 },
+        "grip_type": { "type": "string", "enum": ["half_crimp", "open_hand", "full_crimp", "three_finger_drag", "pinch", "n_a"] },
+        "intensity": { "$ref": "#/$defs/intensity" },
+        "substitution_hint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["protocol_id", "reason"],
+          "properties": {
+            "protocol_id": { "type": "string" },
+            "reason": { "type": "string", "maxLength": 160 }
+          }
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "date", "week", "primary_stimulus", "title", "estimated_duration_min", "items"],
+      "properties": {
+        "session_id": { "type": "string", "pattern": "^[a-z0-9_-]{4,40}$" },
+        "date": { "type": "string", "format": "date" },
+        "week": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "primary_stimulus": { "$ref": "#/$defs/stimulus" },
+        "title": { "type": "string", "maxLength": 60 },
+        "estimated_duration_min": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "is_deload": { "type": "boolean" },
+        "coaching_note": { "type": "string", "maxLength": 320 },
+        "flags": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["referral_suggested", "assessment", "taper", "reentry", "conservative_baselines"] }
+        },
+        "items": { "type": "array", "maxItems": 12, "items": { "$ref": "#/$defs/item" } }
+      }
+    }
+  }
+}
