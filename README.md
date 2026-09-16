@@ -31,6 +31,7 @@ rejects anything that violates training-science invariants before a human ever s
 | [2. Sports-Science AI Engine](docs/02-ai-engine.md) | Prompt segmentation, stimulus clustering matrix, recovery gaps, protocol library, progressive-overload doctrine, autoregulation table, validator |
 | [3. Database Architecture](docs/03-data-model.md) | Profiles, assessments, derived metrics, immutable plan versions, set-level logs, LLM observability |
 | [4. User Experience](docs/04-ux.md) | Onboarding, calendar, session player, analytics, and the tiered AI-adjustment model |
+| [5. Implementation Roadmap](docs/05-implementation-roadmap.md) | Phased build order, done criteria, PR sequence, risk register |
 
 ## Contract artifacts
 
