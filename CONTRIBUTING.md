@@ -237,8 +237,10 @@ setting prevents most accidental PRs against `master`.
 
 ## 9. CI
 
-Add `.github/workflows/ci.yml` with the following (kept out of this commit because pushing
-workflow files needs elevated token scope — add it from your own account):
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every PR and push to `dev` and
+`master`. Today it validates what the repository actually contains — JSON contracts parse, and
+`packages/engine` typechecks under `--strict`. The application jobs below are in the file,
+commented out, to enable as the packages land:
 
 ```yaml
 name: ci
@@ -270,8 +272,11 @@ jobs:
         run: pnpm eval:prompts --fixtures 40 --fail-on-regression
 ```
 
-The prompt eval job runs only on `dev` → `master` because it costs real API money. Everything
-else runs on every PR.
+The prompt eval job is gated to `dev` → `master` because it spends API credit on every run.
+Everything else runs on every PR.
+
+Note the `permissions: contents: read` block at the top of the workflow — GitHub tokens should
+be least-privilege by default, and a job is granted more only when it demonstrably needs it.
 
 ---
 
