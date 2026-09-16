@@ -1,0 +1,72 @@
+# CI for ClimbAI Coach.
+#
+# The repository is currently a blueprint: contract artifacts only, no application
+# code and no package manifest. This workflow validates what actually exists today
+# and is structured so the application jobs drop in as the packages land.
+# See CONTRIBUTING.md §9 for the full intended pipeline.
+
+name: ci
+
+on:
+  pull_request:
+    branches: [dev, master]
+  push:
+    branches: [dev, master]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: contracts / schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JSON contracts parse
+        run: |
+          for f in $(git ls-files '*.json'); do
+            python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f" || exit 1
+            echo "ok  $f"
+          done
+
+  engine:
+    name: engine / typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Typecheck the prescription engine
+        run: |
+          npx --yes -p typescript@5.7 tsc --noEmit --strict \
+            --target es2022 --module esnext --moduleResolution bundler \
+            packages/engine/*.ts
+
+  # ── Enable these as the packages land. ──────────────────────────────────────
+  #
+  # app:
+  #   name: app / lint + test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: pnpm/action-setup@v4
+  #     - uses: actions/setup-node@v4
+  #       with: { node-version: 22, cache: pnpm }
+  #     - run: pnpm install --frozen-lockfile
+  #     - run: pnpm -r typecheck
+  #     - run: pnpm -r lint
+  #     - run: pnpm --filter @climbai/engine test
+  #     - name: generated schema is in sync with its Zod source
+  #       run: pnpm --filter @climbai/contracts build && git diff --exit-code packages/contracts
+  #
+  # prompt-evals:
+  #   # Spends real API credit — gated to release PRs only.
+  #   name: prompts / eval fixtures
+  #   if: github.base_ref == 'master'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: pnpm eval:prompts --fixtures 40 --fail-on-regression
+  #       env:
+  #         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
