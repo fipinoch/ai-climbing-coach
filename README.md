@@ -60,6 +60,11 @@ every rule stated in the prompt is independently re-checked by the validator, be
 rule you do not also validate is a suggestion. Tier-3 (pain/injury) responses are never
 delegated to the model. The app does not diagnose, rehabilitate, or advise on body composition.
 
+## Contributing
+
+Branching model, commit conventions, release and hotfix flow, branch protection settings and
+the `dev` → `master` promotion checklist: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Status
 
 Design blueprint. The contract artifacts are real and reviewable; `packages/engine/progression.ts`
